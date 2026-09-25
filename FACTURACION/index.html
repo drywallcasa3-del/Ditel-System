@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACI001 - Ingreso De Ventas | Century System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { 
+      font-family: 'Tahoma', 'MS Sans Serif', sans-serif; 
+      background-color: #808080; 
+      color: #000000; 
+      font-size: 11px; 
+    }
+
+    .win-panel { 
+      background-color: #d4d0c8; 
+      border: 2px solid #ffffff; 
+      border-right-color: #404040; 
+      border-bottom-color: #404040; 
+    }
+
+    .win-input { 
+      border: 1px solid #7f9db9; 
+      background-color: #ffffff; 
+      padding: 1px 3px; 
+      font-size: 11px; 
+      height: 20px; 
+    }
+
+    .win-input-yellow { 
+      background-color: #ffffdd; 
+      border: 1px solid #7f9db9; 
+      font-weight: bold; 
+      text-align: right; 
+      height: 20px; 
+      padding: 1px 3px; 
+    }
+
+    .win-btn { 
+      background: #d4d0c8; 
+      border: 2px solid #ffffff; 
+      border-right-color: #404040; 
+      border-bottom-color: #404040; 
+      font-size: 11px; 
+      padding: 2px 8px; 
+      cursor: pointer; 
+    }
+
+    .win-btn:active { 
+      border: 2px solid #404040; 
+      border-right-color: #ffffff; 
+      border-bottom-color: #ffffff; 
+    }
+
+    .win-btn-nav {
+      background: #d4d0c8; 
+      border: 2px solid #ffffff; 
+      border-right-color: #404040; 
+      border-bottom-color: #404040; 
+      font-size: 11px;
+      font-weight: bold;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+
+    .century-grid-container {
+      background-color: #d4d0c8;
+      border: 2px solid #808080;
+      border-right-color: #ffffff;
+      border-bottom-color: #ffffff;
+      padding: 2px;
+    }
+
+    .century-table {
+      border-collapse: separate;
+      border-spacing: 1px;
+      background-color: #808080;
+      width: 100%;
+    }
+
+    .century-table th {
+      background-color: #d4d0c8;
+      font-weight: normal;
+      font-size: 11px;
+      color: #000;
+      padding: 1px 3px;
+      border: 1px solid #ffffff;
+      border-right-color: #404040;
+      border-bottom-color: #404040;
+    }
+
+    .century-table td {
+      background-color: #ffffff;
+      padding: 0;
+      height: 20px;
+    }
+
+    @media print {
+      body * { visibility: hidden; }
+      #hoja-impresion-fisica, #hoja-impresion-fisica * { visibility: visible; }
+      #hoja-impresion-fisica { position: absolute; left: 0; top: 0; width: 100%; height: 100%; font-family: monospace; font-size: 12px; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="p-2 select-none flex flex-col min-h-screen bg-[#606060]">
+
+  <div class="max-w-[1280px] mx-auto w-full space-y-1">
+
+    <!-- BARRAS Y PESTAÑAS HORIZONTALES ARRIBA -->
+    <div class="win-panel p-1 flex space-x-1 justify-start items-center">
+      <button onclick="cambiarVista('facturacion')" class="win-btn-nav bg-gray-200">📄 FACTURACIÓN</button>
+      <button onclick="abrirModalClienteNuevo()" class="win-btn-nav bg-yellow-100">👤 REGISTRAR CLIENTE</button>
+      <button onclick="cambiarVista('caja')" class="win-btn-nav bg-blue-100">💵 CAJA / CONCILIACIÓN</button>
+      <button onclick="cambiarVista('inventario')" class="win-btn-nav bg-green-100">📦 INVENTARIO STOCK</button>
+    </div>
+
+    <div class="win-panel p-1">
+      
+      <!-- BARRA DE TÍTULO -->
+      <div class="bg-[#0a246a] text-white font-bold px-2 py-0.5 flex justify-between items-center text-xs">
+        <div class="flex items-center space-x-1">
+          <span class="bg-yellow-300 text-black px-1 font-mono text-[10px]">FACI</span>
+          <span id="tituloVentana">FACI001 - Ingreso De Ventas | Century System</span>
+        </div>
+        <div class="flex space-x-0.5">
+          <button class="bg-[#d4d0c8] text-black px-1.5 border border-gray-600 font-bold text-[9px] h-4">_</button>
+          <button class="bg-[#d4d0c8] text-black px-1.5 border border-gray-600 font-bold text-[9px] h-4">□</button>
+          <button class="bg-[#d4d0c8] text-black px-1.5 border border-gray-600 font-bold text-[9px] h-4">✕</button>
+        </div>
+      </div>
+
+      <!-- VISTA FACTURACIÓN -->
+      <div id="vista-facturacion" class="space-y-1 mt-1">
+        
+        <div class="grid grid-cols-12 gap-1">
+          
+          <div class="col-span-8 space-y-1">
+            <div class="flex items-center">
+              <span class="w-20">Fecha:</span>
+              <input type="date" id="fecha" class="win-input w-32 font-bold">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20">Nro. factura:</span>
+              <input type="text" id="nroFactura" value="002-001-0002452" class="win-input w-36 font-bold text-blue-900">
+              <span>Nro. Pedido:</span>
+              <input type="text" class="win-input w-28">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20 font-bold">Tipo factura:</span>
+              <select id="tipoFactura" onchange="evaluarTipoFactura()" class="win-input w-28 font-bold border-blue-600">
+                <option value="CONTADO">CONTADO</option>
+                <option value="CREDITO">CRÉDITO</option>
+              </select>
+              
+              <div id="panelCreditoPlazo" class="hidden flex items-center space-x-1">
+                <span class="font-bold text-red-700">Plazo:</span>
+                <select id="plazoCredito" class="win-input w-24 font-bold bg-yellow-100">
+                  <option value="30">30 Días</option>
+                  <option value="60">60 Días</option>
+                  <option value="90">90 Días</option>
+                  <option value="120">120 Días</option>
+                </select>
+              </div>
+
+              <span class="text-[10px]">Lim.Cr.Disponible:</span>
+              <input type="text" id="limiteCredito" value="0" readonly class="win-input w-24 text-right font-bold text-blue-900 bg-gray-100">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20 font-bold text-blue-900">Cliente (F9):</span>
+              <input type="text" id="codCliente" placeholder="F9" onkeydown="detectarF9Cliente(event)" class="win-input w-14 text-center font-bold bg-yellow-50">
+              <input type="text" id="nombreCliente" placeholder="Presione F9 para buscar cliente..." onkeydown="detectarF9Cliente(event)" onclick="abrirBuscadorCliente()" class="win-input flex-1 cursor-pointer font-bold">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20">Dirección:</span>
+              <input type="text" id="dirCliente" class="win-input flex-1">
+              <span class="font-bold">RUC:</span>
+              <input type="text" id="rucCliente" onkeydown="detectarF9Cliente(event)" class="win-input w-28 font-bold">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20">Moneda:</span>
+              <input type="text" value="1" class="win-input w-6 text-center">
+              <input type="text" value="Gs" readonly class="win-input w-8 text-center">
+              <span>Tasa U$:</span>
+              <input type="text" value="5930" class="win-input w-16 text-center font-bold">
+              <span>Teléfono:</span>
+              <input type="text" id="telCliente" class="win-input w-28">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20">Depósito:</span>
+              <input type="text" value="1" class="win-input w-6 text-center">
+              <input type="text" value="DEP. ACCESO SUR" readonly class="win-input flex-1 font-bold">
+            </div>
+
+            <div class="flex items-center space-x-2">
+              <span class="w-20">Vendedor:</span>
+              <input type="text" value="9" class="win-input w-6 text-center">
+              <input type="text" value="VENDEDOR MOSTRADOR" readonly class="win-input flex-1">
+            </div>
+
+            <div class="flex items-center">
+              <span class="w-20">Observación:</span>
+              <input type="text" class="win-input flex-1">
+            </div>
+          </div>
+
+          <div class="col-span-4 border border-gray-500 p-2 win-panel space-y-1">
+            <div class="flex justify-between items-center"><span class="font-bold">Total Descuento :</span><input type="text" id="totDesc" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center"><span class="font-bold">Total Exenta :</span><input type="text" id="totExenta" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center"><span class="font-bold">Total 5% :</span><input type="text" id="tot5" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center"><span class="font-bold">Iva 5% :</span><input type="text" id="iva5" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center"><span class="font-bold">Total 10% :</span><input type="text" id="tot10" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center"><span class="font-bold">Iva 10% :</span><input type="text" id="iva10" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center"><span class="font-bold">Total IVA :</span><input type="text" id="totIva" value="0" class="win-input-yellow w-28" readonly></div>
+            <div class="flex justify-between items-center border-t border-gray-400 pt-1"><span class="font-bold">Total Factura :</span><input type="text" id="totFactura" value="0" class="win-input-yellow w-28 text-black font-extrabold" readonly></div>
+          </div>
+
+        </div>
+
+        <div class="century-grid-container mt-2 h-48 overflow-y-auto">
+          <table class="century-table">
+            <thead>
+              <tr>
+                <th style="width: 28px;">Sec</th>
+                <th style="width: 24px;">Op</th>
+                <th style="width: 100px;">Artículo</th>
+                <th>DescripciónArtículo</th>
+                <th style="width: 70px;" class="text-right">Cantidad</th>
+                <th style="width: 75px;" class="text-right">Precio</th>
+                <th style="width: 45px;" class="text-right">% Dto.</th>
+                <th style="width: 85px;" class="text-right">Importe</th>
+              </tr>
+            </thead>
+            <tbody id="grillaVenta"></tbody>
+          </table>
+        </div>
+
+        <div class="flex justify-between items-center pt-2">
+          <div class="space-x-1">
+            <button onclick="abrirModalPagoMixto()" class="win-btn font-bold bg-yellow-200 border-yellow-700">💳 F.Pago (Cobro Mixto)</button>
+          </div>
+          <div class="space-x-2">
+            <button onclick="procesarVentaEImprimir()" class="win-btn font-bold bg-green-200">Aceptar e Imprimir</button>
+            <button onclick="limpiarFormulario()" class="win-btn">Cancelar</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VISTA CAJA / CONCILIACIÓN -->
+      <div id="vista-caja" class="hidden p-2 space-y-2 bg-white border">
+        
+        <div class="font-mono text-xs border-b pb-2 space-y-2">
+          <div class="flex justify-between items-center border-b pb-1">
+            <div>
+              <div class="font-bold">INSTRUMAQ S.A.</div>
+              <div>A. SUR - CAJA DIEGO R</div>
+            </div>
+            <div class="text-center font-bold text-sm">CONCILIACION BANCARIA (FINL049)</div>
+            <div class="text-right">
+              <div>Hoja: 1</div>
+              <div id="relojSistema">18-09-2026 16:01:25</div>
+            </div>
+          </div>
+
+          <div class="bg-yellow-50 p-1.5 border border-yellow-400 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <span class="font-bold text-blue-900">RANGO DE FECHAS:</span>
+              <span>Fecha Desde:</span>
+              <input type="date" id="filtroFechaDesde" value="2026-09-01" class="win-input border-blue-600 font-bold">
+              <span>Fecha Hasta:</span>
+              <input type="date" id="filtroFechaHasta" value="2026-09-30" class="win-input border-blue-600 font-bold">
+              <button onclick="actualizarTablaConciliacion()" class="win-btn font-bold bg-blue-100 border-blue-700">🔍 Consultar Fechas</button>
+            </div>
+            <div class="font-bold text-red-700">
+              Saldo Pendiente en Rango: Gs. <span id="saldoPendienteTotal">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-2">
+          
+          <div class="col-span-5 border bg-gray-50 p-1">
+            <div class="font-bold text-blue-900 bg-gray-200 p-1 border-b flex justify-between">
+              <span>📄 Facturas Emitidas</span>
+              <span>Acciones</span>
+            </div>
+            <div class="h-72 overflow-y-auto border font-mono text-[11px] bg-white">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-gray-100 border-b">
+                  <tr>
+                    <th class="p-1 border-b">Fecha</th>
+                    <th class="p-1 border-b">Nro. Factura</th>
+                    <th class="p-1 border-b text-right">Monto</th>
+                    <th class="p-1 border-b text-center">Estado</th>
+                    <th class="p-1 border-b text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaFacturasIzquierda"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="col-span-7 space-y-2">
+            
+            <div class="h-56 overflow-y-auto border font-mono text-[10px] bg-white">
+              <table class="w-full text-left border-collapse">
+                <thead class="border-b bg-gray-100 sticky top-0">
+                  <tr>
+                    <th class="p-1 border-b">Fecha</th>
+                    <th class="p-1 border-b">Cmpr.Débito</th>
+                    <th class="p-1 border-b">Cmpr.Crédito</th>
+                    <th class="p-1 border-b text-right">Débitos</th>
+                    <th class="p-1 border-b text-right">Créditos</th>
+                    <th class="p-1 border-b pl-1">Observaciones</th>
+                    <th class="p-1 border-b text-center">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaConciliacionBody"></tbody>
+              </table>
+            </div>
+
+            <div class="win-panel p-2 space-y-2 bg-blue-50 border border-blue-400">
+              <div class="font-bold text-blue-900 border-b pb-1">💵 Cargar Comprobante / Transferencia</div>
+              
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block font-bold">Seleccionar Factura Pendiente:</label>
+                  <select id="cajaFacturaPendiente" onchange="actualizarMontoFormulario()" class="win-input font-bold w-full border-blue-600"></select>
+                </div>
+                <div>
+                  <label class="block font-bold">Monto a Cancelar (Gs.):</label>
+                  <input type="number" id="cajaMontoCancelar" class="win-input w-full font-bold text-right bg-yellow-50 text-green-800 border-green-600">
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-2">
+                <span class="font-bold w-36">Nro. Comprobante Cr.:</span>
+                <input type="text" id="cajaComprobanteCr" placeholder="Ej: 0000001092026 / Transf. 98412" class="win-input flex-1 font-bold">
+                <button onclick="aplicarCreditoCaja()" class="win-btn font-bold bg-green-200 border-green-700 px-4">💾 Asentar Crédito</button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- VISTA INVENTARIO -->
+      <div id="vista-inventario" class="hidden p-2 space-y-2 win-panel">
+        <h3 class="font-bold text-blue-900">Cargar Nuevo Artículo</h3>
+        <div class="grid grid-cols-6 gap-2 items-end">
+          <div><label class="block">Código N°:</label><input type="text" id="invCodigo" class="win-input w-full bg-gray-200 font-bold" readonly></div>
+          <div class="col-span-2"><label class="block">Descripción Artículo:</label><input type="text" id="invNombre" class="win-input w-full"></div>
+          <div><label class="block">Precio (Gs.):</label><input type="number" id="invPrecio" class="win-input w-full"></div>
+          <div><label class="block">Stock Inicial:</label><input type="number" id="invStock" value="10" class="win-input w-full"></div>
+          <div><button onclick="guardarNuevoItem()" class="win-btn font-bold w-full bg-green-200">Guardar Ítem</button></div>
+        </div>
+
+        <h4 class="font-bold border-t pt-2 mt-2">Lista de Ítems en Stock:</h4>
+        <table class="w-full text-left border border-gray-400">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="border p-1">Código</th>
+              <th class="border p-1">Descripción</th>
+              <th class="border p-1 text-right">Precio</th>
+              <th class="border p-1 text-center">Stock</th>
+            </tr>
+          </thead>
+          <tbody id="tablaStockBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODAL COBRO MIXTO / MONTO A CANCELAR EN FILAS -->
+  <div id="modalPagoMixto" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#d4d0c8] win-panel p-3 max-w-lg w-full space-y-3">
+      <div class="bg-[#0a246a] text-white font-bold px-2 py-0.5 flex justify-between">
+        <span>💳 Forma de Pago - Cobro Mixto</span>
+        <button onclick="cerrarModalPagoMixto()" class="text-xs text-white">✕</button>
+      </div>
+
+      <div class="space-y-2 bg-white p-3 border font-mono text-xs">
+        <div class="flex justify-between border-b pb-1 font-bold">
+          <span>Total Factura: Gs. <span id="pagoTotalFactura">0</span></span>
+          <span class="text-red-700">Saldo Restante: Gs. <span id="pagoSaldoRestante">0</span></span>
+        </div>
+
+        <div class="space-y-2 border p-2 bg-yellow-50">
+          <div class="font-bold text-blue-900 border-b pb-1">Fila 1: Pago en Efectivo</div>
+          <div class="flex items-center space-x-2">
+            <span>Monto Efectivo: Gs.</span>
+            <input type="number" id="montoEfectivo" oninput="calcularSaldoCobroMixto()" class="win-input flex-1 font-bold text-right" value="0">
+          </div>
+        </div>
+
+        <div class="space-y-2 border p-2 bg-blue-50">
+          <div class="font-bold text-blue-900 border-b pb-1">Fila 2: Pago por Transferencia / Banco</div>
+          <div class="flex items-center space-x-2">
+            <span>Monto Transf.: Gs.</span>
+            <input type="number" id="montoTransferencia" oninput="calcularSaldoCobroMixto()" class="win-input flex-1 font-bold text-right" value="0">
+          </div>
+          <div class="flex items-center space-x-2">
+            <span>Nro. Comprobante / Ref:</span>
+            <input type="text" id="refTransferencia" placeholder="Ej. Transf. 98412" class="win-input flex-1 font-bold">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2">
+        <button onclick="cerrarModalPagoMixto()" class="win-btn">Cancelar</button>
+        <button onclick="confirmarPagoMixto()" class="win-btn font-bold bg-green-200">💾 Aplicar Pagos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL REGISTRO CLIENTE -->
+  <div id="modalNuevoCliente" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#d4d0c8] win-panel p-3 max-w-md w-full space-y-3">
+      <div class="bg-[#0a246a] text-white font-bold px-2 py-0.5 flex justify-between">
+        <span>👤 Registrar / Editar Cliente</span>
+        <button onclick="cerrarModalClienteNuevo()" class="text-xs text-white">✕</button>
+      </div>
+      
+      <div class="space-y-2 bg-white p-3 border">
+        <div class="flex items-center justify-between bg-yellow-50 p-1 border border-yellow-300">
+          <label class="font-bold text-blue-900">Código Cliente:</label>
+          <input type="text" id="cliCodigo" onchange="buscarYEditarCliente()" onkeydown="if(event.key==='Enter') buscarYEditarCliente()" placeholder="1670" class="win-input w-24 text-center font-bold text-blue-900 border-blue-600">
+        </div>
+        <div>
+          <label class="block font-bold">Nombre / Razón Social:</label>
+          <input type="text" id="cliNombre" class="win-input w-full">
+        </div>
+        <div>
+          <label class="block font-bold">RUC / C.I.:</label>
+          <input type="text" id="cliRuc" class="win-input w-full font-bold">
+        </div>
+        <div>
+          <label class="block">Dirección:</label>
+          <input type="text" id="cliDireccion" class="win-input w-full">
+        </div>
+        <div>
+          <label class="block">Celular / Teléfono:</label>
+          <input type="text" id="cliCelular" class="win-input w-full">
+        </div>
+        <div>
+          <label class="block font-bold text-blue-900">Límite de Crédito (Gs.):</label>
+          <input type="number" id="cliLimite" value="5000000" class="win-input w-full font-bold text-right">
+        </div>
+      </div>
+
+      <div class="flex justify-end space-x-2">
+        <button onclick="cerrarModalClienteNuevo()" class="win-btn">Cancelar</button>
+        <button onclick="guardarCliente()" class="win-btn font-bold bg-green-200">💾 Guardar Cliente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL BÚSQUEDA CLIENTE (F9) -->
+  <div id="modalBuscarCliente" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#d4d0c8] win-panel p-2 max-w-lg w-full space-y-2">
+      <div class="bg-[#0a246a] text-white font-bold px-2 py-0.5 flex justify-between">
+        <span>🔍 F9 - Buscar Cliente</span>
+        <button onclick="cerrarBuscadorCliente()" class="text-xs text-white">✕</button>
+      </div>
+      
+      <div class="p-1">
+        <input type="text" id="filtroCliente" onkeyup="filtrarClientes()" placeholder="Escriba Nombre, Apellido o RUC..." class="win-input w-full p-1 text-xs border-2 border-blue-600 font-bold">
+      </div>
+
+      <div class="bg-white border h-56 overflow-y-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-200 sticky top-0 border-b">
+            <tr>
+              <th class="p-1 border w-12">Cód.</th>
+              <th class="p-1 border">Nombre / Razón Social</th>
+              <th class="p-1 border w-24">RUC</th>
+              <th class="p-1 border text-right">Límite Cr.</th>
+              <th class="p-1 border text-center w-16">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tablaClientesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SELECCIÓN ARTÍCULO (F9) -->
+  <div id="modalF9" class="fixed inset-0 bg-black/40 hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-[#d4d0c8] win-panel p-2 max-w-lg w-full space-y-2">
+      <div class="bg-[#0a246a] text-white font-bold px-2 py-0.5 flex justify-between">
+        <span>F9 - Selección de Artículos</span>
+        <button onclick="cerrarF9()" class="text-xs text-white">✕</button>
+      </div>
+      <div class="bg-white border h-64 overflow-y-auto">
+        <table class="w-full text-left">
+          <thead class="bg-gray-200 sticky top-0">
+            <tr>
+              <th class="p-1 border">Cód.</th>
+              <th class="p-1 border">Descripción</th>
+              <th class="p-1 border text-right">Precio</th>
+              <th class="p-1 border text-center">Stock</th>
+              <th class="p-1 border text-center">Acción</th>
+            </tr>
+          </thead>
+          <tbody id="modalStockBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANTILLA IMPRESIÓN FÍSICA -->
+  <div id="hoja-impresion-fisica" class="hidden">
+    <div style="position: absolute; top: 35mm; left: 25mm;" id="pf-fecha"></div>
+    <div style="position: absolute; top: 35mm; left: 130mm;" id="pf-condicion">CONTADO</div>
+    <div style="position: absolute; top: 42mm; left: 25mm;" id="pf-cliente"></div>
+    <div style="position: absolute; top: 42mm; left: 130mm;" id="pf-ruc"></div>
+    <div style="position: absolute; top: 49mm; left: 25mm;" id="pf-direccion"></div>
+    <div style="position: absolute; top: 62mm; left: 15mm; width: 180mm;" id="pf-items"></div>
+    <div style="position: absolute; top: 122mm; left: 25mm; font-weight: bold;" id="pf-letras"></div>
+    <div style="position: absolute; top: 130mm; left: 150mm;" id="pf-tot10"></div>
+    <div style="position: absolute; top: 138mm; left: 150mm;" id="pf-total"></div>
+  </div>
+
+  <script>
+    let contadorFactura = 2453;
+    let correlativoCliente = 1671;
+
+    document.getElementById('fecha').value = "2026-09-18";
+
+    let clientes = [
+      { id: 1, codigo: '1670', nombre: 'DIEGO AGUIAR', ruc: '4355578-0', direccion: 'SAN LORENZO', celular: '0981123456', limite: 0 },
+      { id: 2, codigo: '1002', nombre: 'HOUSE S.A.', ruc: '80000000-1', direccion: 'ASUNCION', celular: '0971987654', limite: 50000000 }
+    ];
+
+    let correlativoArticulo = 1;
+    let inventario = [
+      { id: correlativoArticulo++, codigo: '1', nombre: 'SOLERA 35', descExt: 'PERFIL SOLERA 35 L 2,60', precio: 5.000, stock: 100 },
+      { id: correlativoArticulo++, codigo: '2', nombre: 'PERFIL SOLERA 35', descExt: 'PERFIL SOLERA 35 L 2,60', precio: 10.000, stock: 50 }
+    ];
+
+    let facturasGlobales = [
+      { fecha: '2026-09-01', nroFactura: '20010002340', cliente: 'DIEGO AGUIAR', monto: 252500, estado: 'COBRADO' },
+      { fecha: '2026-09-01', nroFactura: '20010002341', cliente: 'DIEGO AGUIAR', monto: 492000, estado: 'PENDIENTE' },
+      { fecha: '2026-09-01', nroFactura: '20010002342', cliente: 'DIEGO AGUIAR', monto: 184000, estado: 'COBRADO' },
+      { fecha: '2026-09-01', nroFactura: '20010002343', cliente: 'DIEGO AGUIAR', monto: 140000, estado: 'COBRADO' },
+      { fecha: '2026-09-01', nroFactura: '20010002344', cliente: 'DIEGO AGUIAR', monto: 78000, estado: 'COBRADO' },
+      { fecha: '2026-09-01', nroFactura: '20010002345', cliente: 'DIEGO AGUIAR', monto: 401400, estado: 'PENDIENTE' },
+      { fecha: '2026-09-01', nroFactura: '20010002346', cliente: 'DIEGO AGUIAR', monto: 409400, estado: 'COBRADO' },
+      { fecha: '2026-09-01', nroFactura: '20010002348', cliente: 'DIEGO AGUIAR', monto: 2004200, estado: 'COBRADO' },
+      { fecha: '2026-09-01', nroFactura: '20010002349', cliente: 'DIEGO AGUIAR', monto: 313500, estado: 'COBRADO' }
+    ];
+
+    let movimientosConciliacion = [
+      { id: 1, fecha: '2026-09-01', debitos: 252.500, creditos: 0, cmprDe: '20010002340', cmprCr: '', obs: '' },
+      { id: 2, fecha: '2026-09-01', debitos: 0, creditos: 252.500, cmprDe: '', cmprCr: '0000001092026', obs: 'TRANS. FAC. 2340', facRef: '20010002340' }
+    ];
+
+    let correlativoMovs = 100;
+    let datosPagoMixto = { efectivo: 0, transferencia: 0, ref: '' };
+    let filasVenta = [];
+
+    function cambiarVista(vista) {
+      document.getElementById('vista-facturacion').classList.add('hidden');
+      document.getElementById('vista-caja').classList.add('hidden');
+      document.getElementById('vista-inventario').classList.add('hidden');
+
+      if (vista === 'facturacion') {
+        document.getElementById('vista-facturacion').classList.remove('hidden');
+        document.getElementById('tituloVentana').innerText = 'DITEL - Ingreso De Ventas | Century System';
+      } else if (vista === 'caja') {
+        document.getElementById('vista-caja').classList.remove('hidden');
+        document.getElementById('tituloVentana').innerText = 'FINL049 - Conciliación Bancaria / Caja | Century System';
+        actualizarTablaConciliacion();
+      } else if (vista === 'inventario') {
+        document.getElementById('vista-inventario').classList.remove('hidden');
+        document.getElementById('tituloVentana').innerText = 'INVE001 - Registro De Artículos / Stock';
+        renderizarTablaStock();
+      }
+    }
+
+    function evaluarTipoFactura() {
+      const tipo = document.getElementById('tipoFactura').value;
+      const panelCredito = document.getElementById('panelCreditoPlazo');
+      if (tipo === 'CREDITO') {
+        panelCredito.classList.remove('hidden');
+      } else {
+        panelCredito.classList.add('hidden');
+      }
+    }
+
+    function abrirModalClienteNuevo() {
+      document.getElementById('cliCodigo').value = correlativoCliente.toString();
+      limpiarCamposCliente();
+      document.getElementById('modalNuevoCliente').classList.remove('hidden');
+    }
+
+    function cerrarModalClienteNuevo() {
+      document.getElementById('modalNuevoCliente').classList.add('hidden');
+    }
+
+    function limpiarCamposCliente() {
+      document.getElementById('cliNombre').value = '';
+      document.getElementById('cliRuc').value = '';
+      document.getElementById('cliDireccion').value = '';
+      document.getElementById('cliCelular').value = '';
+      document.getElementById('cliLimite').value = '5000000';
+    }
+
+    function buscarYEditarCliente() {
+      const cod = document.getElementById('cliCodigo').value.trim();
+      const cli = clientes.find(c => c.codigo === cod);
+      if (cli) {
+        document.getElementById('cliNombre').value = cli.nombre;
+        document.getElementById('cliRuc').value = cli.ruc;
+        document.getElementById('cliDireccion').value = cli.direccion;
+        document.getElementById('cliCelular').value = cli.celular;
+        document.getElementById('cliLimite').value = cli.limite;
+      } else {
+        limpiarCamposCliente();
+      }
+    }
+
+    function guardarCliente() {
+      const cod = document.getElementById('cliCodigo').value.trim();
+      const nombre = document.getElementById('cliNombre').value.toUpperCase().trim();
+      const ruc = document.getElementById('cliRuc').value.trim();
+      const direccion = document.getElementById('cliDireccion').value.toUpperCase().trim();
+      const celular = document.getElementById('cliCelular').value.trim();
+      const limite = parseFloat(document.getElementById('cliLimite').value) || 0;
+
+      if (!cod || !nombre || !ruc) {
+        alert("Ingrese Código, Nombre y RUC del cliente.");
+        return;
+      }
+
+      const idx = clientes.findIndex(c => c.codigo === cod);
+      if (idx !== -1) {
+        clientes[idx] = { id: clientes[idx].id, codigo: cod, nombre, ruc, direccion, celular, limite };
+      } else {
+        clientes.push({ id: correlativoCliente++, codigo: cod, nombre, ruc, direccion, celular, limite });
+      }
+
+      seleccionarCliente(cod);
+      cerrarModalClienteNuevo();
+    }
+
+    function detectarF9Cliente(e) {
+      if (e.key === 'F9') {
+        e.preventDefault();
+        abrirBuscadorCliente();
+      }
+    }
+
+    function abrirBuscadorCliente() {
+      document.getElementById('filtroCliente').value = '';
+      filtrarClientes();
+      document.getElementById('modalBuscarCliente').classList.remove('hidden');
+      document.getElementById('filtroCliente').focus();
+    }
+
+    function cerrarBuscadorCliente() {
+      document.getElementById('modalBuscarCliente').classList.add('hidden');
+    }
+
+    function filtrarClientes() {
+      const filtro = document.getElementById('filtroCliente').value.toUpperCase();
+      const tbody = document.getElementById('tablaClientesBody');
+      tbody.innerHTML = '';
+
+      clientes.filter(c => c.nombre.includes(filtro) || c.ruc.includes(filtro) || c.codigo.includes(filtro))
+        .forEach(c => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b hover:bg-yellow-100 cursor-pointer text-xs';
+          tr.onclick = () => { seleccionarCliente(c.codigo); cerrarBuscadorCliente(); };
+          tr.innerHTML = `
+            <td class="p-1 font-bold text-center">${c.codigo}</td>
+            <td class="p-1 font-bold">${c.nombre}</td>
+            <td class="p-1">${c.ruc}</td>
+            <td class="p-1 text-right font-mono">${c.limite.toLocaleString('es-PY')}</td>
+            <td class="p-1 text-center"><button class="win-btn font-bold">OK</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+    }
+
+    function seleccionarCliente(codigo) {
+      const cli = clientes.find(c => c.codigo === codigo);
+      if (cli) {
+        document.getElementById('codCliente').value = cli.codigo;
+        document.getElementById('nombreCliente').value = cli.nombre;
+        document.getElementById('rucCliente').value = cli.ruc;
+        document.getElementById('dirCliente').value = cli.direccion;
+        document.getElementById('telCliente').value = cli.celular;
+        document.getElementById('limiteCredito').value = cli.limite.toLocaleString('es-PY');
+      }
+    }
+
+    function agregarFilaVenta() {
+      const index = filasVenta.length;
+      filasVenta.push({ sec: index + 1, item: null, cantidad: 1, precio: 0, dto: 0, importe: 0 });
+      renderizarGrilla();
+    }
+
+    function renderizarGrilla() {
+      const tbody = document.getElementById('grillaVenta');
+      tbody.innerHTML = '';
+
+      filasVenta.forEach((fila, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center font-bold bg-gray-100">${fila.sec}</td>
+          <td class="text-center"><button onclick="eliminarFila(${idx})" class="text-red-600 font-bold hover:bg-red-100 w-full">✕</button></td>
+          <td><input type="text" value="${fila.item ? fila.item.codigo : ''}" onkeydown="detectarF9Articulo(event, ${idx})" placeholder="F9" class="w-full text-center win-input border-none font-bold"></td>
+          <td><input type="text" value="${fila.item ? fila.item.descExt : ''}" readonly class="w-full win-input border-none bg-transparent font-bold"></td>
+          <td><input type="number" value="${fila.cantidad}" oninput="actualizarCantidad(${idx}, this.value)" class="w-full text-right win-input border-none font-bold"></td>
+          <td><input type="number" value="${fila.precio}" oninput="actualizarPrecio(${idx}, this.value)" class="w-full text-right win-input border-none"></td>
+          <td><input type="number" value="${fila.dto}" oninput="actualizarDto(${idx}, this.value)" class="w-full text-right win-input border-none"></td>
+          <td class="text-right font-mono font-bold pr-1 bg-yellow-50">${fila.importe.toLocaleString('es-PY')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      calcularTotalesFactura();
+    }
+
+    function eliminarFila(idx) {
+      filasVenta.splice(idx, 1);
+      filasVenta.forEach((f, i) => f.sec = i + 1);
+      if (filasVenta.length === 0) agregarFilaVenta();
+      renderizarGrilla();
+    }
+
+    function detectarF9Articulo(e, idx) {
+      if (e.key === 'F9') {
+        e.preventDefault();
+        abrirF9(idx);
+      }
+    }
+
+    let filaActivaF9 = null;
+    function abrirF9(idx) {
+      filaActivaF9 = idx;
+      const tbody = document.getElementById('modalStockBody');
+      tbody.innerHTML = '';
+
+      inventario.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b hover:bg-yellow-100 cursor-pointer text-xs';
+        tr.onclick = () => seleccionarItemF9(item);
+        tr.innerHTML = `
+          <td class="p-1 font-bold text-center">${item.codigo}</td>
+          <td class="p-1 font-bold">${item.descExt}</td>
+          <td class="p-1 text-right font-mono">${item.precio.toLocaleString('es-PY')}</td>
+          <td class="p-1 text-center font-bold ${item.stock > 0 ? 'text-green-700' : 'text-red-600'}">${item.stock}</td>
+          <td class="p-1 text-center"><button class="win-btn font-bold">OK</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('modalF9').classList.remove('hidden');
+    }
+
+    function cerrarF9() {
+      document.getElementById('modalF9').classList.add('hidden');
+    }
+
+    function seleccionarItemF9(item) {
+      if (filaActivaF9 !== null && filasVenta[filaActivaF9]) {
+        filasVenta[filaActivaF9].item = item;
+        filasVenta[filaActivaF9].precio = item.precio;
+        filasVenta[filaActivaF9].importe = item.precio * filasVenta[filaActivaF9].cantidad;
+      }
+      cerrarF9();
+      renderizarGrilla();
+    }
+
+    function actualizarCantidad(idx, val) {
+      const cant = parseFloat(val) || 0;
+      filasVenta[idx].cantidad = cant;
+      const desc = (filasVenta[idx].precio * cant) * (filasVenta[idx].dto / 100);
+      filasVenta[idx].importe = (filasVenta[idx].precio * cant) - desc;
+      renderizarGrilla();
+    }
+
+    function actualizarPrecio(idx, val) {
+      const prec = parseFloat(val) || 0;
+      filasVenta[idx].precio = prec;
+      const desc = (prec * filasVenta[idx].cantidad) * (filasVenta[idx].dto / 100);
+      filasVenta[idx].importe = (prec * filasVenta[idx].cantidad) - desc;
+      renderizarGrilla();
+    }
+
+    function actualizarDto(idx, val) {
+      const dto = parseFloat(val) || 0;
+      filasVenta[idx].dto = dto;
+      const sub = filasVenta[idx].precio * filasVenta[idx].cantidad;
+      filasVenta[idx].importe = sub - (sub * (dto / 100));
+      renderizarGrilla();
+    }
+
+    function calcularTotalesFactura() {
+      let subtotal = 0;
+      filasVenta.forEach(f => subtotal += f.importe);
+
+      const iva10Calculado = Math.round(subtotal / 11);
+
+      document.getElementById('tot10').value = subtotal.toLocaleString('es-PY');
+      document.getElementById('iva10').value = iva10Calculado.toLocaleString('es-PY');
+      document.getElementById('totIva').value = iva10Calculado.toLocaleString('es-PY');
+      document.getElementById('totFactura').value = subtotal.toLocaleString('es-PY');
+    }
+
+    function abrirModalPagoMixto() {
+      const totalText = document.getElementById('totFactura').value.replace(/\./g, '');
+      const total = parseFloat(totalText) || 0;
+      if (total <= 0) {
+        alert("Primero agregue artículos a la venta.");
+        return;
+      }
+
+      document.getElementById('pagoTotalFactura').innerText = total.toLocaleString('es-PY');
+      document.getElementById('montoEfectivo').value = total;
+      document.getElementById('montoTransferencia').value = 0;
+      document.getElementById('refTransferencia').value = '';
+      calcularSaldoCobroMixto();
+
+      document.getElementById('modalPagoMixto').classList.remove('hidden');
+    }
+
+    function cerrarModalPagoMixto() {
+      document.getElementById('modalPagoMixto').classList.add('hidden');
+    }
+
+    function calcularSaldoCobroMixto() {
+      const totalText = document.getElementById('pagoTotalFactura').innerText.replace(/\./g, '');
+      const total = parseFloat(totalText) || 0;
+      const efec = parseFloat(document.getElementById('montoEfectivo').value) || 0;
+      const trans = parseFloat(document.getElementById('montoTransferencia').value) || 0;
+
+      const saldo = total - (efec + trans);
+      document.getElementById('pagoSaldoRestante').innerText = saldo.toLocaleString('es-PY');
+    }
+
+    function confirmarPagoMixto() {
+      const efec = parseFloat(document.getElementById('montoEfectivo').value) || 0;
+      const trans = parseFloat(document.getElementById('montoTransferencia').value) || 0;
+      const ref = document.getElementById('refTransferencia').value.trim();
+
+      datosPagoMixto = { efectivo: efec, transferencia: trans, ref: ref };
+      cerrarModalPagoMixto();
+      alert("Pagos mixtos registrados correctamente para la factura.");
+    }
+
+    function procesarVentaEImprimir() {
+      const cliente = document.getElementById('nombreCliente').value;
+      const totalText = document.getElementById('totFactura').value.replace(/\./g, '');
+      const total = parseFloat(totalText) || 0;
+
+      if (!cliente) {
+        alert("Seleccione un cliente (F9).");
+        return;
+      }
+      if (total <= 0) {
+        alert("Agregue ítems a la venta.");
+        return;
+      }
+
+      const numFac = `2001000${contadorFactura++}`;
+      const fechaActual = document.getElementById('fecha').value;
+
+      facturasGlobales.push({
+        fecha: fechaActual,
+        nroFactura: numFac,
+        cliente: cliente,
+        monto: total,
+        estado: 'PENDIENTE'
+      });
+
+      movimientosConciliacion.push({
+        id: correlativoMovs++,
+        fecha: fechaActual,
+        debitos: total,
+        creditos: 0,
+        cmprDe: numFac,
+        cmprCr: '',
+        obs: ''
+      });
+
+      if (datosPagoMixto.transferencia > 0) {
+        movimientosConciliacion.push({
+          id: correlativoMovs++,
+          fecha: fechaActual,
+          debitos: 0,
+          creditos: datosPagoMixto.transferencia,
+          cmprDe: '',
+          cmprCr: datosPagoMixto.ref || 'TRANSF. BANCO',
+          obs: `PAGO TRANSF. FAC. ${numFac.slice(-4)}`,
+          facRef: numFac
+        });
+      }
+
+      if (datosPagoMixto.efectivo > 0) {
+        movimientosConciliacion.push({
+          id: correlativoMovs++,
+          fecha: fechaActual,
+          debitos: 0,
+          creditos: datosPagoMixto.efectivo,
+          cmprDe: '',
+          cmprCr: 'EFECTIVO CAJA',
+          obs: `COBRO EFEC. FAC. ${numFac.slice(-4)}`,
+          facRef: numFac
+        });
+      }
+
+      const totalPagado = datosPagoMixto.efectivo + datosPagoMixto.transferencia;
+      if (totalPagado >= total) {
+        const facIndex = facturasGlobales.findIndex(f => f.nroFactura === numFac);
+        if (facIndex !== -1) facturasGlobales[facIndex].estado = 'COBRADO';
+      }
+
+      imprimirDocumentoFisico(numFac, cliente, total);
+      limpiarFormulario();
+    }
+
+    function imprimirDocumentoFisico(numFac, cliente, total) {
+      document.getElementById('pf-fecha').innerText = document.getElementById('fecha').value;
+      document.getElementById('pf-cliente').innerText = cliente;
+      document.getElementById('pf-ruc').innerText = document.getElementById('rucCliente').value;
+      document.getElementById('pf-direccion').innerText = document.getElementById('dirCliente').value;
+
+      let itemsHtml = '';
+      filasVenta.filter(f => f.item).forEach(f => {
+        itemsHtml += `<div style="display:flex; justify-content:space-between;">
+          <span style="width:20mm;">${f.item.codigo}</span>
+          <span style="width:80mm;">${f.item.descExt}</span>
+          <span style="width:20mm; text-align:right;">${f.cantidad}</span>
+          <span style="width:30mm; text-align:right;">${f.precio.toLocaleString('es-PY')}</span>
+          <span style="width:30mm; text-align:right;">${f.importe.toLocaleString('es-PY')}</span>
+        </div>`;
+      });
+
+      document.getElementById('pf-items').innerHTML = itemsHtml;
+      document.getElementById('pf-tot10').innerText = total.toLocaleString('es-PY');
+      document.getElementById('pf-total').innerText = total.toLocaleString('es-PY');
+
+      window.print();
+    }
+
+    function limpiarFormulario() {
+      filasVenta = [];
+      datosPagoMixto = { efectivo: 0, transferencia: 0, ref: '' };
+      document.getElementById('codCliente').value = '';
+      document.getElementById('nombreCliente').value = '';
+      document.getElementById('rucCliente').value = '';
+      document.getElementById('dirCliente').value = '';
+      document.getElementById('telCliente').value = '';
+      document.getElementById('limiteCredito').value = '0';
+      
+      document.getElementById('nroFactura').value = `002-001-000${contadorFactura}`;
+      agregarFilaVenta();
+    }
+
+    function actualizarTablaConciliacion() {
+      const desde = document.getElementById('filtroFechaDesde').value;
+      const hasta = document.getElementById('filtroFechaHasta').value;
+
+      const tbodyIzq = document.getElementById('tablaFacturasIzquierda');
+      tbodyIzq.innerHTML = '';
+      let saldoPendiente = 0;
+
+      facturasGlobales.filter(f => f.fecha >= desde && f.fecha <= hasta).forEach(f => {
+        if (f.estado === 'PENDIENTE') saldoPendiente += f.monto;
+
+        const tr = document.createElement('tr');
+        tr.className = 'border-b hover:bg-blue-50';
+        tr.innerHTML = `
+          <td class="p-1">${f.fecha}</td>
+          <td class="p-1 font-bold text-blue-900">${f.nroFactura}</td>
+          <td class="p-1 text-right font-mono">${f.monto.toLocaleString('es-PY')}</td>
+          <td class="p-1 text-center font-bold ${f.estado === 'COBRADO' ? 'text-green-700' : 'text-red-600'}">${f.estado}</td>
+          <td class="p-1 text-center">
+            ${f.estado === 'PENDIENTE' ? `<button onclick="seleccionarFacturaParaCobro('${f.nroFactura}')" class="win-btn text-[9px] bg-yellow-200">Cobrar</button>` : '✓'}
+          </td>
+        `;
+        tbodyIzq.appendChild(tr);
+      });
+
+      document.getElementById('saldoPendienteTotal').innerText = saldoPendiente.toLocaleString('es-PY');
+
+      const tbodyDer = document.getElementById('tablaConciliacionBody');
+      tbodyDer.innerHTML = '';
+
+      movimientosConciliacion.filter(m => m.fecha >= desde && m.fecha <= hasta).forEach(m => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b hover:bg-gray-100';
+        tr.innerHTML = `
+          <td class="p-1">${m.fecha}</td>
+          <td class="p-1 font-bold text-blue-900">${m.cmprDe}</td>
+          <td class="p-1 font-bold text-green-800">${m.cmprCr}</td>
+          <td class="p-1 text-right font-mono">${m.debitos ? m.debitos.toLocaleString('es-PY') : ''}</td>
+          <td class="p-1 text-right font-mono text-green-700">${m.creditos ? m.creditos.toLocaleString('es-PY') : ''}</td>
+          <td class="p-1 text-gray-600 pl-1">${m.obs}</td>
+          <td class="p-1 text-center"><button onclick="eliminarMovimiento(${m.id})" class="text-red-600 font-bold hover:bg-red-100 px-1">✕</button></td>
+        `;
+        tbodyDer.appendChild(tr);
+      });
+
+      cargarSelectFacturasPendientes();
+    }
+
+    function cargarSelectFacturasPendientes() {
+      const select = document.getElementById('cajaFacturaPendiente');
+      select.innerHTML = '<option value="">-- Seleccionar Factura --</option>';
+
+      facturasGlobales.filter(f => f.estado === 'PENDIENTE').forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.nroFactura;
+        opt.innerText = `${f.nroFactura} - ${f.cliente} (Gs. ${f.monto.toLocaleString('es-PY')})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function seleccionarFacturaParaCobro(nroFac) {
+      document.getElementById('cajaFacturaPendiente').value = nroFac;
+      actualizarMontoFormulario();
+    }
+
+    function actualizarMontoFormulario() {
+      const nro = document.getElementById('cajaFacturaPendiente').value;
+      const fac = facturasGlobales.find(f => f.nroFactura === nro);
+      if (fac) {
+        document.getElementById('cajaMontoCancelar').value = fac.monto;
+      } else {
+        document.getElementById('cajaMontoCancelar').value = '';
+      }
+    }
+
+    function aplicarCreditoCaja() {
+      const nroFac = document.getElementById('cajaFacturaPendiente').value;
+      const monto = parseFloat(document.getElementById('cajaMontoCancelar').value) || 0;
+      const compCr = document.getElementById('cajaComprobanteCr').value.trim();
+
+      if (!nroFac || monto <= 0 || !compCr) {
+        alert("Complete todos los campos de cobranza.");
+        return;
+      }
+
+      movimientosConciliacion.push({
+        id: correlativoMovs++,
+        fecha: document.getElementById('fecha').value,
+        debitos: 0,
+        creditos: monto,
+        cmprDe: '',
+        cmprCr: compCr,
+        obs: `CANCELACION FAC. ${nroFac.slice(-4)}`,
+        facRef: nroFac
+      });
+
+      const facIdx = facturasGlobales.findIndex(f => f.nroFactura === nroFac);
+      if (facIdx !== -1) {
+        facturasGlobales[facIdx].estado = 'COBRADO';
+      }
+
+      document.getElementById('cajaComprobanteCr').value = '';
+      document.getElementById('cajaMontoCancelar').value = '';
+      actualizarTablaConciliacion();
+      alert("Crédito/Cobro asentado con éxito.");
+    }
+
+    function eliminarMovimiento(id) {
+      const idx = movimientosConciliacion.findIndex(m => m.id === id);
+      if (idx !== -1) {
+        const mov = movimientosConciliacion[idx];
+        if (mov.facRef) {
+          const facIdx = facturasGlobales.findIndex(f => f.nroFactura === mov.facRef);
+          if (facIdx !== -1) facturasGlobales[facIdx].estado = 'PENDIENTE';
+        }
+        movimientosConciliacion.splice(idx, 1);
+        actualizarTablaConciliacion();
+      }
+    }
+
+    function renderizarTablaStock() {
+      document.getElementById('invCodigo').value = inventario.length + 1;
+      const tbody = document.getElementById('tablaStockBody');
+      tbody.innerHTML = '';
+
+      inventario.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b text-xs';
+        tr.innerHTML = `
+          <td class="p-1 border font-bold text-center">${item.codigo}</td>
+          <td class="p-1 border font-bold">${item.descExt}</td>
+          <td class="p-1 border text-right font-mono">${item.precio.toLocaleString('es-PY')}</td>
+          <td class="p-1 border text-center font-bold ${item.stock > 0 ? 'text-green-700' : 'text-red-600'}">${item.stock}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function guardarNuevoItem() {
+      const nombre = document.getElementById('invNombre').value.toUpperCase().trim();
+      const precio = parseFloat(document.getElementById('invPrecio').value) || 0;
+      const stock = parseInt(document.getElementById('invStock').value) || 0;
+
+      if (!nombre || precio <= 0) {
+        alert("Ingrese Nombre y Precio válidos.");
+        return;
+      }
+
+      const cod = (inventario.length + 1).toString();
+      inventario.push({
+        id: correlativoArticulo++,
+        codigo: cod,
+        nombre: nombre,
+        descExt: nombre,
+        precio: precio,
+        stock: stock
+      });
+
+      document.getElementById('invNombre').value = '';
+      document.getElementById('invPrecio').value = '';
+      document.getElementById('invStock').value = '10';
+      renderizarTablaStock();
+      alert("Artículo guardado correctamente.");
+    }
+
+    window.onload = () => {
+      agregarFilaVenta();
+    };
+  </script>
+</body>
+</html>
